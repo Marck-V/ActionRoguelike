@@ -9,24 +9,29 @@
 class USInteractionComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UAnimMontage;
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category= "Attack")
 	TSubclassOf<AActor> ProjectileClass;
-	
+
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	USpringArmComponent* SpringArmComponent;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere)
@@ -39,6 +44,7 @@ protected:
 	void PrimaryAttack();
 	virtual void Jump() override;
 	void PrimaryInteract();
+	void PrimaryAttack_TimeElapsed();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

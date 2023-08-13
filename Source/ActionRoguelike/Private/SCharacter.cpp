@@ -2,10 +2,13 @@
 
 
 #include "SCharacter.h"
+
+#include "CollisionDebugDrawingPublic.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "DrawDebugHelpers.h"
+#include "EditorViewportClient.h"
 #include "SInteractionComponent.h"
 
 // Sets default values
@@ -55,6 +58,8 @@ void ASCharacter::Tick(float DeltaTime)
 	FVector ControllerDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
 	// Draw 'Controller' Rotation ('PlayerController' that 'possessed' this character)
 	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f, 0, Thickness);
+
+	
 }
 
 // Called to bind functionality to input
@@ -95,14 +100,12 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack()
 {
-	// Location of the hand on the mesh of the character
-	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+
+	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
 	
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
-	
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 }
 
 void ASCharacter::Jump()
@@ -114,8 +117,59 @@ void ASCharacter::PrimaryInteract()
 {
 	if(InteractionComponent)
 	{
-		InteractionComponent->PrimaryIntereact();	
+		InteractionComponent->PrimaryInteract();	
 	}
+	
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
+	// Location of the hand on the mesh of the character
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+	// SpawnTM stands for spawn transform matrix
+	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+	
+	// Code to get a line trace to happen
+	FHitResult OutHit;
+	// Getting the location of the camera for the start of the line trace
+	FVector Start = CameraComponent->GetComponentLocation();
+	// Getting the forward vector of the camera for the direction of the line trace.
+	FVector ForwardVector = CameraComponent->GetForwardVector();
+	// Extending the line trace by multiplying the forward vector by 2000 to give the line some length. This is also the maximum range of the line trace.
+	FVector End = (Start + (ForwardVector * 2000.0f));
+
+	
+	FCollisionQueryParams CollisionParams;
+	// Debug line gets drawn every time you attack 
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 3,0,1);
+	bool isHit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams);
+	// If statement to get the engine to put out some information about the line trace. This will return true when the line trace hits something.
+	if(isHit)
+	{
+		// This is a boolean that can be accessed from FHitResult structure that returns true or false on if the hit was a result of blocking collision.
+		if(OutHit.bBlockingHit)
+		{
+			if(GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
+				// Setting the new end point to the impact point of the line trace since that is where we would want our attack to go. 
+				End = OutHit.ImpactPoint;
+			}
+		}
+	}
+
+	// Creating a rotator variable that is "Looking at" the desired impact point. This is done by subtracting the target from the start and getting its rotation.
+	FRotator ProjRotation = (End - HandLocation).Rotation();
+	// Creating a spawn transform matrix that takes two parameters, the first being a rotator and the second being a vector. This creates the transform.
+	FTransform NewSpawnTM = FTransform(ProjRotation, HandLocation);
+	// Spawning the projectile when we attack with the transform set so it knows where to go. 
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, NewSpawnTM, SpawnParams);
 	
 }
 
