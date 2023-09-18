@@ -29,7 +29,7 @@ void ASDashProjectile::TeleportToInstigator()
 	if(ensure(ActorToTeleport))
 	{
 		// Setting the location of the actor to the location of the projectile and keeping actor rotation so it is not a jarring teleport.
-		//ActorToTeleport->TeleportTo(GetActorLocation(),ActorToTeleport->GetActorRotation(),false,false);
+		ActorToTeleport->TeleportTo(GetActorLocation(),ActorToTeleport->GetActorRotation(),false,false);
 	}
 }
 

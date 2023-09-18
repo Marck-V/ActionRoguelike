@@ -23,22 +23,22 @@ protected:
 	UPROPERTY(EditAnywhere, Category= "Attack")
 	UAnimMontage* AttackAnim;
 	
-	UPROPERTY(EditAnywhere, Category= "SecondAttack")
-	TSubclassOf<AActor> ProjectileClass2;
-
-	UPROPERTY(EditAnywhere, Category= "SecondAttack")
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	TSubclassOf<AActor> BlackholeProjectile;
+	
+	UPROPERTY(EditAnywhere, Category= "Attack")
 	UAnimMontage* AttackAnim2;
 	FTimerHandle TimerHandle_PrimaryAttack;
 
-	UPROPERTY(EditAnywhere, Category= "Dash")
+	UPROPERTY(EditAnywhere, Category= "Attack")
 	TSubclassOf<AActor> DashProjectile;
 
-	UPROPERTY(EditAnywhere, Category= "Dash")
+	UPROPERTY(EditAnywhere, Category= "Attack")
 	UAnimMontage* DashAnim;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	FTimerHandle TimerHandle_Dash;
-	FTimerHandle TimerHandle_ProjectileClass2;
+	FTimerHandle TimerHandle_BlackholeAttack;
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
@@ -69,6 +69,12 @@ protected:
 	void Dash_TimeElapsed();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 	float AttackAnimDelay;
+	
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -26,6 +26,7 @@ protected:
 	virtual void Explode_Implementation() override;
 
 	void TeleportToInstigator();
+	
 	virtual void BeginPlay() override;
 
 public:

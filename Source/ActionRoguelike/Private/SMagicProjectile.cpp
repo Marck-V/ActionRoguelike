@@ -4,46 +4,38 @@
 #include "SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
+
+ASMagicProjectile::ASMagicProjectile()
+{
+	SphereComponent->SetSphereRadius(20.0f);
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
+	DamageAmount = 20.0f;
+}
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// IF function to see if we hit another actor
-	if(OtherActor)
+	if(OtherActor && OtherActor != GetInstigator())
 	{
 		// Cast to our attribute component. In this case we are looking for the attribute component on the other actor.
 		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		if(AttributeComponent)
 		{
-			AttributeComponent->ApplyHealthChange(-20.0f);
-
-			Destroy();
+			AttributeComponent->ApplyHealthChange(-DamageAmount);
+			
+			Explode();
 		}
 	}
 }
 
-ASMagicProjectile::ASMagicProjectile()
-{
-	// Set this actor to call Tick() every frame. You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
-	SphereComponent->SetCollisionProfileName("Projectile");
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-	RootComponent = SphereComponent;
-
-	EffectComponent = CreateDefaultSubobject<UParticleSystemComponent>("EffectComponent");
-	EffectComponent->SetupAttachment(SphereComponent);
-
-	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
-	MovementComponent->InitialSpeed = 1000.0f;
-	MovementComponent->bRotationFollowsVelocity = true;
-	MovementComponent->bInitialVelocityInLocalSpace = true;
-}
 
 void ASMagicProjectile::BeginPlay()
 {

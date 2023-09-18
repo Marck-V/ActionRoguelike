@@ -40,6 +40,22 @@ void ASCharacter::BeginPlay()
 }
 
 
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
+	float Delta)
+{
+	if(NewHealth <= 0.0f && Delta < 0.0f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
+}
+
+void ASCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+	
+}
 
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
@@ -224,7 +240,7 @@ void ASCharacter::SecondaryAttack()
 	// Creating a spawn transform matrix that takes two parameters, the first being a rotator and the second being a vector. This creates the transform.
 	FTransform NewSpawnTM = FTransform(ProjRotation, HandLocation);
 	// Spawning the projectile when we attack with the transform set so it knows where to go. 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass2, NewSpawnTM, SpawnParams);
+	GetWorld()->SpawnActor<AActor>(BlackholeProjectile, NewSpawnTM, SpawnParams);
 	
 	
 }
