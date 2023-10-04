@@ -21,12 +21,14 @@ void USBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 			if(ensure(MyController))
 			{
 				APawn* AIPawn = MyController->GetPawn();
-				if(AIPawn)
+				if(ensure(AIPawn))
 				{
-					float Distance = FVector::Distance(MyActor->GetActorLocation(), AIPawn->GetActorLocation());
+					float DistanceTo = FVector::Distance(MyActor->GetActorLocation(), AIPawn->GetActorLocation());
 					
-					bool bInAttackRange = Distance <= 200.0f;
+					bool bInAttackRange = DistanceTo < 2000.f;
+					
 					bool bHasLOS = false;
+					
 					if(bInAttackRange)
 					{
 						bHasLOS = MyController->LineOfSightTo(MyActor);
