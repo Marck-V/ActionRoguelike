@@ -11,17 +11,29 @@ class USpringArmComponent;
 class UCameraComponent;
 class UAnimMontage;
 class USAttributeComponent;
+class UParticleSystem;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 protected:
+	
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName HandSocketName;
+	
 	UPROPERTY(EditAnywhere, Category= "Attack")
 	TSubclassOf<AActor> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category= "Attack")
 	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category= "Attack")
+	UParticleSystem* CastingEffect;
 	
 	UPROPERTY(EditAnywhere, Category= "Attack")
 	TSubclassOf<AActor> BlackholeProjectile;
@@ -67,6 +79,7 @@ protected:
 	void SecondaryAttack();
 	void Dash();
 	void Dash_TimeElapsed();
+	void StartAttackEffects();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 	float AttackAnimDelay;
 	
