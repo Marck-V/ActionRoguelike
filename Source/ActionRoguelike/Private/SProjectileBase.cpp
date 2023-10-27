@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+// #include "Camera/CameraShakeBase.h"
 
 // Sets default values
 ASProjectileBase::ASProjectileBase()
@@ -32,6 +33,8 @@ ASProjectileBase::ASProjectileBase()
 	MovementComponent->bRotationFollowsVelocity = true;
 	MovementComponent->bInitialVelocityInLocalSpace = true;
 
+	ImpactShakeInnerRadius = 250.0f;
+	ImpactShakeOuterRadius = 2500.0f;
 }
 
 
@@ -40,9 +43,12 @@ void ASProjectileBase::Explode_Implementation()
 {
 	if(ensure(!IsValid(GetOwner())))
 	{
+		// Play emitter
 		UGameplayStatics::SpawnEmitterAtLocation(this, ExplosionEffect, GetActorLocation(), GetActorRotation());
+		// Play sound
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-		
+		// Play camera shake
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
 
 		EffectComponent->DeactivateSystem();
 		MovementComponent->StopMovementImmediately();
@@ -51,8 +57,7 @@ void ASProjectileBase::Explode_Implementation()
 	}
 }
 
-void ASProjectileBase::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,
-	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void ASProjectileBase::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Explode();
 }
