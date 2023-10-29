@@ -17,6 +17,15 @@ ASAICharacter::ASAICharacter()
 		AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
+void ASAICharacter::SetTargetActor(AActor* NewTarget)
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if(AIC)
+	{
+		AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
+	}
+}
+
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -30,7 +39,11 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 {
 	if(Delta < 0.0f)
 	{
-
+		// Set the target actor to the instigator actor if the instigator actor is not this actor.
+		if(InstigatorActor != this)
+		{
+			SetTargetActor(InstigatorActor);
+		}
 		if(NewHealth <=0.0f)
 		{
 			// Stop Behavior Tree When Killed.
@@ -52,15 +65,9 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
 void ASAICharacter::OnPawnSeen(APawn* SeenPawn)
 {
-	AAIController* AIC = Cast<AAIController>(GetController());
-	if(AIC)
-	{
-		UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-
-		BBComp->SetValueAsObject("TargetActor", SeenPawn);
-
-		DrawDebugString(GetWorld(), GetActorLocation(), "Seen Pawn", nullptr, FColor::Yellow, 3.0f, true);
-	}
+	SetTargetActor(SeenPawn);
+	
+	DrawDebugString(GetWorld(), GetActorLocation(), "Seen Pawn", nullptr, FColor::Yellow, 3.0f, true);
 }
 
 

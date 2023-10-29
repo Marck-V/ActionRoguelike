@@ -25,7 +25,7 @@ void ASPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	if(ensure(AttributeComponent) && !AttributeComponent->IsFullHealth())
 	{
 		// This will only happen if the player is not at full health.
-		if(AttributeComponent->ApplyHealthChange(AttributeComponent->GetHealthMax()))
+		if(AttributeComponent->ApplyHealthChange(this, AttributeComponent->GetHealthMax()))
 		{
 			HideAndCooldownPowerup();
 		}
