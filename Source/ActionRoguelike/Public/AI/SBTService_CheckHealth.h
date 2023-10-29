@@ -16,7 +16,7 @@ class ACTIONROGUELIKE_API USBTService_CheckHealth : public UBTService
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
-	FBlackboardKeySelector HealthPercentageKey;
+	FBlackboardKeySelector LowHealthKey;
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 };

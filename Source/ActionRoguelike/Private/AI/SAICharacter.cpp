@@ -39,9 +39,6 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		// If the AI controller is valid, then we can set the blackboard value
 		if(AIC)
 		{
-			UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-
-			BBComp->SetValueAsBool("LowHealth", true);
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Low Health");
 		}
 	}
