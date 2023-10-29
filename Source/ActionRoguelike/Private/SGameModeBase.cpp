@@ -3,6 +3,9 @@
 
 #include "SGameModeBase.h"
 
+#include "EngineUtils.h"
+#include "SAttributeComponent.h"
+#include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
 
@@ -26,7 +29,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 	if(ensure(QueryInstance))
 	{
 		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnQueryCompleted);
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Query Completed");
+		
 	}
 }
 
@@ -37,6 +40,29 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
 		UE_LOG(LogTemp, Warning, TEXT("Query Failed"));
 		return;
 	}
+
+	int32 NrOfAliveBots = 0;
+	for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASAICharacter* Bot = *It;
+		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(Bot->GetComponentByClass(USAttributeComponent::StaticClass()));
+		if(AttributeComponent && AttributeComponent->IsAlive())
+		{
+			++NrOfAliveBots;
+		}
+	}
+	float MaxBotCount = 10.0f;
+	
+	if(DifficultyCurve)
+	{
+		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+	}
+	if(NrOfAliveBots >= MaxBotCount)
+	{
+		return;
+	}
+
+	
 	
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if(Locations.IsValidIndex(0))
