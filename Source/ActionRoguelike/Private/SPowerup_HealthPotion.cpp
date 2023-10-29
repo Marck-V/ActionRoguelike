@@ -19,13 +19,12 @@ void ASPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	{
 		return;
 	}
-
-	// Q: Can you explain this code?
-	// A: We are casting the InstigatorPawn to USAttributeComponent, and if it is valid, we are calling the Heal function.
+	
 	USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
-
-	if(ensure(AttributeComponent) && !AttributeComponent->isAlive())
+	// Checking if the player is at full health.
+	if(ensure(AttributeComponent) && !AttributeComponent->IsFullHealth())
 	{
+		// This will only happen if the player is not at full health.
 		if(AttributeComponent->ApplyHealthChange(AttributeComponent->GetHealthMax()))
 		{
 			HideAndCooldownPowerup();

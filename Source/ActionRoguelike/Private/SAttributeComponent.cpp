@@ -11,7 +11,7 @@ USAttributeComponent::USAttributeComponent()
 	Health = MaxHealth;
 }
 
-bool USAttributeComponent::isFullHealth() const
+bool USAttributeComponent::IsFullHealth() const
 {
 	return Health == MaxHealth;
 }
@@ -21,7 +21,7 @@ float USAttributeComponent::GetHealthMax() const
 	return MaxHealth;
 }
 
-bool USAttributeComponent::isAlive() const
+bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
 }
@@ -31,6 +31,7 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
 {
 	float OldHealth = Health;
 
+	// Clamping the health to ensure it is between the minimum and maximum when the health changes.
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
 	
 	float ActualDelta = Health - OldHealth;

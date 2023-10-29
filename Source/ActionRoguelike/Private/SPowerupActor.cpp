@@ -26,6 +26,8 @@ void ASPowerupActor::HideAndCooldownPowerup()
 	// Setting the collision to false 
 	SetActorEnableCollision(false);
 	// Setting the visibility to false while it is on cooldown.
+	RootComponent->SetVisibility(false, true);
+	// Setting the visibility to false while it is on cooldown.
 	FTimerHandle TimerHandle_Respawn;
 	GetWorldTimerManager().SetTimer(TimerHandle_Respawn, this, &ASPowerupActor::ShowPowerup, RespawnTime);
 }
