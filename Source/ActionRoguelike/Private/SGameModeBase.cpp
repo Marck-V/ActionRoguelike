@@ -2,7 +2,6 @@
 
 
 #include "SGameModeBase.h"
-
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
 #include "AI/SAICharacter.h"
@@ -24,7 +23,35 @@ void ASGameModeBase::StartPlay()
 }
 
 void ASGameModeBase::SpawnBotTimerElapsed()
-{	
+{
+	// Code to check if we are allowed to spawn more bots.
+	int32 NrOfAliveBots = 0;
+	// Looping through all the bots in the world.
+	for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASAICharacter* Bot = *It;
+		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(Bot->GetComponentByClass(USAttributeComponent::StaticClass()));
+		// If the bot is alive, then we increment the counter.
+		if(ensure(AttributeComponent) && AttributeComponent->IsAlive())
+		{
+			++NrOfAliveBots;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("There are %d bots alive"), NrOfAliveBots);
+	
+	float MaxBotCount = 10.0f;
+	
+	if(DifficultyCurve)
+	{
+		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+	}
+	if(NrOfAliveBots >= MaxBotCount)
+	{
+		UE_LOG(LogTemp, Log, TEXT("At Maximum Bot Count, Skipping Bot Spawn"));
+		return;
+	}
+	// Running the FindBotSpawn EQS that we created in the editor.
 	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 	if(ensure(QueryInstance))
 	{
@@ -40,33 +67,13 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
 		UE_LOG(LogTemp, Warning, TEXT("Query Failed"));
 		return;
 	}
-
-	int32 NrOfAliveBots = 0;
-	for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
-	{
-		ASAICharacter* Bot = *It;
-		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(Bot->GetComponentByClass(USAttributeComponent::StaticClass()));
-		if(AttributeComponent && AttributeComponent->IsAlive())
-		{
-			++NrOfAliveBots;
-		}
-	}
-	float MaxBotCount = 10.0f;
-	
-	if(DifficultyCurve)
-	{
-		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
-	}
-	if(NrOfAliveBots >= MaxBotCount)
-	{
-		return;
-	}
-
-	
 	
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if(Locations.IsValidIndex(0))
 	{
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+
+		// To Track the spawn locations of the bots.
+		DrawDebugSphere(GetWorld(), Locations[0], 25.0f, 12, FColor::Red, false, 5.0f);
 	}
 }
