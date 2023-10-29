@@ -12,9 +12,12 @@
 ASAICharacter::ASAICharacter()
 {
  		PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
+	
 		AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
 		AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+		TimeToHitParamName = "TimeToHit";
 }
 
 void ASAICharacter::SetTargetActor(AActor* NewTarget)
@@ -34,8 +37,9 @@ void ASAICharacter::PostInitializeComponents()
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
 }
 
-void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
-	float Delta)
+
+
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth, float Delta)
 {
 	if(Delta < 0.0f)
 	{
@@ -44,6 +48,9 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		{
 			SetTargetActor(InstigatorActor);
 		}
+		
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		
 		if(NewHealth <=0.0f)
 		{
 			// Stop Behavior Tree When Killed.

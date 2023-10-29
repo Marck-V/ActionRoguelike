@@ -3,6 +3,25 @@
 
 #include "SAttributeComponent.h"
 
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if(FromActor)
+	{
+		return FromActor->FindComponentByClass<USAttributeComponent>();
+	}
+	return nullptr;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	USAttributeComponent* AttributeComp = GetAttributes(Actor);
+	if(AttributeComp)
+	{
+		return AttributeComp->IsAlive();
+	}
+	return false;
+}
+
 // Sets default values
 USAttributeComponent::USAttributeComponent()
 {
