@@ -3,6 +3,11 @@
 
 #include "SAttributeComponent.h"
 
+bool USAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
+}
+
 USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if(FromActor)
@@ -48,6 +53,10 @@ bool USAttributeComponent::IsAlive() const
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if(!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
 	float OldHealth = Health;
 
 	// Clamping the health to ensure it is between the minimum and maximum when the health changes.
