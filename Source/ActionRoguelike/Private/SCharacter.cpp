@@ -68,6 +68,11 @@ void ASCharacter::PostInitializeComponents()
 	
 }
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComponent->GetComponentLocation();
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {

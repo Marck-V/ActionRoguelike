@@ -5,6 +5,7 @@
 
 #include "SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarDebugInteraction(TEXT("su.DebugInteraction"), false, TEXT("Debug Interaction for Interaction Component"), ECVF_Cheat);
 
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
@@ -37,6 +38,8 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void USInteractionComponent::PrimaryInteract()
 {
+	bool bDebugDraw = CVarDebugInteraction.GetValueOnGameThread();
+	
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 	
@@ -61,24 +64,32 @@ void USInteractionComponent::PrimaryInteract()
 	
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
 	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-	
+
+	// For loop to iterate through all the hits.
 	for(FHitResult Hit : Hits)
 	{
+		if(bDebugDraw)
+        	{
+			DrawDebugSphere(GetWorld(),Hit.ImpactPoint, Radius,32, LineColor, false, 2.0f);
+        	}
+		// If the hit actor implements the SGameplayInterface, then we call the Interact function.
 		AActor* HitActor = Hit.GetActor();
 		if(HitActor)
 		{
 			if(HitActor->Implements<USGameplayInterface>())
 			{
+				// We cast the owner to a pawn so that we can pass it to the Interact function.
 				APawn* MyPawn = Cast<APawn>(MyOwner);
+				// We call the Interact function on the hit actor.
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
 				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(),Hit.ImpactPoint, Radius,32, LineColor, false, 2.0f);
+		// if debug draw is true, then we draw a debug sphere at the impact point.
+		if(bDebugDraw)
+		{
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+		}
 	}
-	
-	
-	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
-
 	
 }

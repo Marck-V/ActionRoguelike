@@ -8,6 +8,8 @@
 #include "SWorldUserWidget.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -18,6 +20,11 @@ ASAICharacter::ASAICharacter()
 		AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
 		AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+		// Set the capsule component to ignore the world dynamic channel.
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+		// Set the capsule component to generate overlap events.
+		GetMesh()->SetGenerateOverlapEvents(true);
 
 		TimeToHitParamName = "TimeToHit";
 }
@@ -64,7 +71,8 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		
 		// Code that makes the MF_HitFlashDemo happen when the bot gets hit.
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
-		
+
+		// Died
 		if(NewHealth <=0.0f)
 		{
 			// Stop Behavior Tree When Killed.
@@ -77,6 +85,11 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 			// Ragdoll
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
+
+			// Disable Capsule Component
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			
+			GetCharacterMovement()->DisableMovement();
 			
 			// Set the lifespan to 10 seconds so the corpse will be cleaned up by the engine.
 			SetLifeSpan(10.0f);

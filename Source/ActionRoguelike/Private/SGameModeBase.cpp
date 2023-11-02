@@ -8,6 +8,14 @@
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
+// Console Variable to enable/disable bot spawning.
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable/Disable Bot Spawning"), ECVF_Cheat);
+
+
+ASGameModeBase::ASGameModeBase()
+{
+	SpawnTimerInterval = 2.0f;
+}
 
 void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
 {
@@ -37,11 +45,6 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(KillerActor));
 }
 
-ASGameModeBase::ASGameModeBase()
-{
-	SpawnTimerInterval = 2.0f;
-}
-
 void ASGameModeBase::StartPlay()
 {
 	Super::StartPlay();
@@ -67,6 +70,13 @@ void ASGameModeBase::KillAll()
 
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
+	// Checking if the console variable is set to false.
+	if(!CVarSpawnBots.GetValueOnGameThread())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Bot Spawning is disabled via console variable 'CVARSpawnBots'"));
+		return;
+	}
+	
 	// Code to check if we are allowed to spawn more bots.
 	int32 NrOfAliveBots = 0;
 	// Looping through all the bots in the world.
