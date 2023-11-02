@@ -68,7 +68,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
 	// Dead
-	if(ActualDelta < 0.0f && IsAlive())
+	if(ActualDelta < 0.0f && !IsAlive())
 	{
 		// If the health change is negative, then the actor has taken damage.
 		ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
