@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SPlayerState.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -15,6 +16,7 @@ static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT
 ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval = 2.0f;
+	PlayerStateClass = ASPlayerState::StaticClass();
 }
 
 void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
@@ -27,6 +29,7 @@ void ASGameModeBase::RespawnPlayerElapsed(AController* Controller)
 		RestartPlayer(Controller);
 	}
 }
+
 
 void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 {
@@ -41,7 +44,23 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 		float RespawnDelay = 2.0f;
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 	}
-	
+
+	// Q: This code is never happening. Why?
+	// A: Because the bot is not a player, it is an AICharacter.
+	ASAICharacter* Bot = Cast<ASAICharacter>(VictimActor);
+	if(Bot)
+	{
+		ASCharacter* BotKiller = Cast<ASCharacter>(KillerActor);
+		if(BotKiller)
+		{
+			ASPlayerState* KillerPlayerState = Cast<ASPlayerState>(BotKiller->GetPlayerState());
+			if(KillerPlayerState)
+			{
+				KillerPlayerState->AddScore(1.0f);
+				UE_LOG(LogTemp, Log, TEXT("Credits: %d"), KillerPlayerState->Credit);
+			}
+		}
+	}
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(KillerActor));
 }
 

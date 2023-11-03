@@ -10,6 +10,7 @@ static TAutoConsoleVariable<float> CVarDamageMultipler(TEXT("su.DamageMultiplier
 bool USAttributeComponent::Kill(AActor* InstigatorActor)
 {
 	return ApplyHealthChange(InstigatorActor, -GetHealthMax());
+	
 }
 
 USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)

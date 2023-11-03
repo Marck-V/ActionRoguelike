@@ -43,6 +43,7 @@ protected:
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);
+	
 public:
 
 	virtual void OnActorKilled(AActor* VictimActor, AActor* KillerActor);
