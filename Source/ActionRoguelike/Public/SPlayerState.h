@@ -20,4 +20,7 @@ public:
 	
 	UFUNCTION()
 	float AddScore(float ScoreDelta);
+
+	UFUNCTION()
+	void SubtractScore(float ScoreDelta);
 };

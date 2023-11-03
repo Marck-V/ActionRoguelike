@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "SPowerupActor.generated.h"
 
+class ASPlayerState;
 class USphereComponent;
 
 UCLASS()
@@ -20,6 +21,8 @@ public:
 
 protected:
 
+	ASPlayerState* PlayerState;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
 	float RespawnTime;
 

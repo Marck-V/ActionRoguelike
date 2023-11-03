@@ -55,6 +55,7 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 			ASPlayerState* KillerPlayerState = Cast<ASPlayerState>(BotKiller->GetPlayerState());
 			if(KillerPlayerState)
 			{
+				
 				KillerPlayerState->AddScore(1.0f);
 				UE_LOG(LogTemp, Log, TEXT("Credits: %d"), KillerPlayerState->Credit);
 			}

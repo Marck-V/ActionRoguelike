@@ -4,6 +4,7 @@
 #include "SPowerup_HealthPotion.h"
 
 #include "SAttributeComponent.h"
+#include "SPlayerState.h"
 
 ASPowerup_HealthPotion::ASPowerup_HealthPotion()
 {
@@ -21,6 +22,9 @@ void ASPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	}
 	
 	USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
+
+	PlayerState = Cast<ASPlayerState>(InstigatorPawn->GetPlayerState());
+	
 	// Checking if the player is at full health.
 	if(ensure(AttributeComponent) && !AttributeComponent->IsFullHealth())
 	{
@@ -28,6 +32,7 @@ void ASPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 		if(AttributeComponent->ApplyHealthChange(this, AttributeComponent->GetHealthMax()))
 		{
 			HideAndCooldownPowerup();
+			PlayerState->SubtractScore(1.0f);
 		}
 	}
 }
