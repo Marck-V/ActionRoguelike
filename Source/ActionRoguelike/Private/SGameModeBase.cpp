@@ -45,8 +45,7 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 	}
 
-	// Q: This code is never happening. Why?
-	// A: Because the bot is not a player, it is an AICharacter.
+	// If the victim is a bot, then we want to give the player credit for the kill.
 	ASAICharacter* Bot = Cast<ASAICharacter>(VictimActor);
 	if(Bot)
 	{
