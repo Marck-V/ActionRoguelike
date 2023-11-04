@@ -6,6 +6,7 @@
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
 #include "SPlayerState.h"
+#include "SPowerup_Coin.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -132,6 +133,11 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 	}
 }
 
+void ASGameModeBase::SpawnPowerUpTimerElapsed()
+{
+	return;
+}
+
 void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if(QueryStatus != EEnvQueryStatus::Success)
@@ -143,8 +149,11 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if(Locations.IsValidIndex(0))
 	{
+		// Spawning the bot at the first location.
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 
+		// Spawning the power ups at the first location
+		GetWorld()->SpawnActor<AActor>(PowerUpClass, Locations[0], FRotator::ZeroRotator);
 		// To Track the spawn locations of the bots.
 		DrawDebugSphere(GetWorld(), Locations[0], 25.0f, 12, FColor::Red, false, 5.0f);
 	}

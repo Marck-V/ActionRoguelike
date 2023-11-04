@@ -23,6 +23,8 @@ class ACTIONROGUELIKE_API ASGameModeBase : public AGameModeBase
 protected:
 	FTimerHandle TimerHandle_SpawnBots;
 
+	FTimerHandle TimerHandle_SpawnPowerUp;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float SpawnTimerInterval;
 
@@ -33,6 +35,9 @@ protected:
 	void SpawnBotTimerElapsed();
 
 	UFUNCTION()
+	void SpawnPowerUpTimerElapsed();
+
+	UFUNCTION()
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
@@ -41,6 +46,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TSubclassOf<AActor> PowerUpClass;
+	
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);
 	
