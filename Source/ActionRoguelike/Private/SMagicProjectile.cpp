@@ -3,6 +3,7 @@
 
 #include "SMagicProjectile.h"
 
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
@@ -27,25 +28,26 @@ float ASMagicProjectile::GetDamageAmount()
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	/*// IF function to see if we hit another actor
+	// Check if the other actor is the instigator
 	if(OtherActor && OtherActor != GetInstigator())
 	{
-		// Cast to our attribute component. In this case we are looking for the attribute component on the other actor.
-		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
 		
-		if(AttributeComponent)
+		// If it has the parry tag then reverse the velocity and set the instigator to the other pawn.
+		if(ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
-			AttributeComponent->ApplyHealthChange(GetInstigator(), -DamageAmount);
-			
+			MovementComponent->Velocity = -MovementComponent->Velocity;
+
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
+
+		// Apply Damage & Impulse
+		if(USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
 			Explode();
 		}
-	}*/
-
-	if(USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
-	{
-		Explode();
 	}
-	
 }
 
 

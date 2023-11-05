@@ -19,6 +19,8 @@ ASAICharacter::ASAICharacter()
 	
 		AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
+		ActionComponent = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
+	
 		AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 		// Set the capsule component to ignore the world dynamic channel.
