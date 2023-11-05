@@ -23,7 +23,11 @@ bool USGameplayFunctionLibrary::ApplyDirectionDamage(AActor* DamageCauser, AActo
 		UPrimitiveComponent* HitComp = HitResult.GetComponent();
 		if(HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName))
 		{
-			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 30000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+			// tip: When we want the direction we start with the target and subtract it from the origin.
+			FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
+			Direction.Normalize();
+			
+			HitComp->AddImpulseAtLocation(Direction * 30000.0f, HitResult.ImpactPoint, HitResult.BoneName);
 		}
 		return true;
 	}
