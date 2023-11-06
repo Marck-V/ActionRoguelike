@@ -57,8 +57,8 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* KillerActor)
 			if(KillerPlayerState)
 			{
 				
-				KillerPlayerState->AddScore(1.0f);
-				UE_LOG(LogTemp, Log, TEXT("Credits: %d"), KillerPlayerState->Credit);
+				KillerPlayerState->AddCredits(1.0f);
+				UE_LOG(LogTemp, Log, TEXT("Credits: %d"), KillerPlayerState->GetCredits());
 			}
 		}
 	}

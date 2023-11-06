@@ -12,7 +12,8 @@ ASPowerup_Coin::ASPowerup_Coin()
 	MeshComponent->SetupAttachment(RootComponent);
 	// Disable collision, instead we use SphereComp to handle interaction queries.
 	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
+	CreditsAmount = 1.0f;
 }
 
 void ASPowerup_Coin::Interact_Implementation(APawn* InstigatorPawn)
@@ -24,6 +25,6 @@ void ASPowerup_Coin::Interact_Implementation(APawn* InstigatorPawn)
 
 	PlayerState = Cast<ASPlayerState>(InstigatorPawn->GetPlayerState());
 
-	PlayerState->AddScore(1.0f);
+	PlayerState->AddCredits(CreditsAmount);
 	HideAndCooldownPowerup();
 }

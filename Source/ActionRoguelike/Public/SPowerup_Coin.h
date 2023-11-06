@@ -21,6 +21,8 @@ protected:
 	UStaticMeshComponent* MeshComponent;
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	float CreditsAmount;
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 
 	ASPowerup_Coin();

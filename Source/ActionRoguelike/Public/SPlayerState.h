@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "SPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, ASPlayerState*, PlayerState, int32, NewCredits, int32, Delta);
+
 /**
  * 
  */
@@ -13,14 +15,21 @@ UCLASS()
 class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+	int32 Credit;
 	
 public:
-	UPROPERTY(BlueprintReadOnly, Category = "PlayerState")
-	int Credit;
+	UFUNCTION(BlueprintCallable, Category = "Credits")
+	int32 GetCredits() const;
 	
 	UFUNCTION()
-	float AddScore(float ScoreDelta);
+	void AddCredits(int32 Delta);
 
 	UFUNCTION()
-	void SubtractScore(float ScoreDelta);
+	bool SubtractCredits(int32 Delta);
+
+	UPROPERTY(BlueprintAssignable, Category = "Credits")
+	FOnCreditsChanged OnCreditsChanged;
 };
