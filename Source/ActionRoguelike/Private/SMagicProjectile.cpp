@@ -31,6 +31,7 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 	// Check if the other actor is the instigator
 	if(OtherActor && OtherActor != GetInstigator())
 	{
+		//static const FGameplayTag ParryTag = FGameplayTag::RequestGameplayTag(FName("Status.Parry"));
 		USActionComponent* ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
 		
 		// If it has the parry tag then reverse the velocity and set the instigator to the other pawn.
@@ -46,6 +47,11 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		if(USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();
+
+			if(ActionComp)
+			{
+				ActionComp->AddAction(GetInstigator(), BurningActionClass);
+			}
 		}
 	}
 }
