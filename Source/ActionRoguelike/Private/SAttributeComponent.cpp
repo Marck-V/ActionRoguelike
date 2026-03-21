@@ -38,11 +38,38 @@ USAttributeComponent::USAttributeComponent()
 	// Setting the max health to 100 then setting the health to the max health.
 	MaxHealth = 100;
 	Health = MaxHealth;
+
+	// Setting the max rage to 100 then setting the rage to the max rage.
+	Rage = 0.0f;
+	MaxRage = 100;
 }
 
 bool USAttributeComponent::IsFullHealth() const
 {
 	return Health == MaxHealth;
+}
+
+float USAttributeComponent::GetRage() const
+{
+	return Rage;
+}
+
+bool USAttributeComponent::ApplyRage(AActor* InstigatorActor, float Delta)
+{
+	const float OldRage = Rage;
+
+	Rage = FMath::Clamp(Rage + Delta, 0.0f, MaxRage);
+
+	float ActualDelta = Rage - OldRage;
+
+	// Will be zero delta if we already at max or min
+	if (!FMath::IsNearlyZero(ActualDelta))
+	{
+		OnRageChanged.Broadcast(InstigatorActor, this, Rage, ActualDelta);
+		return true;
+	}
+
+	return false;
 }
 
 float USAttributeComponent::GetHealthMax() const
@@ -57,12 +84,13 @@ bool USAttributeComponent::IsAlive() const
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	// If the owner of the attribute component cannot be damaged and the delta is less than 0, then we return false.
 	if(!GetOwner()->CanBeDamaged() && Delta < 0.0f)
 	{
 		return false;
 	}
 
-	
+	// If the delta is less than 0, then we multiply the delta by the damage multiplier.
 	if(Delta < 0.0f)
 	{
 		float DamageMultiplier = CVarDamageMultipler.GetValueOnGameThread();
@@ -77,7 +105,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	
 	float ActualDelta = Health - OldHealth;
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
-
+	
 	// Dead
 	if(ActualDelta < 0.0f && !IsAlive())
 	{

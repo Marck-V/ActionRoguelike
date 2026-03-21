@@ -52,6 +52,8 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	if (Delta < 0.0f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		const float RageDelta = FMath::Abs(Delta);
+		AttributeComponent->ApplyRage(InstigatorActor, RageDelta);
 	}
 	// If the delta is less than zero and the new health is less than or equal to zero, then we are dead
 	if(NewHealth <= 0.0f && Delta < 0.0f)
